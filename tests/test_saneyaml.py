@@ -195,8 +195,8 @@ def build_tests(cls, test_subdir='yamls', test_data_dir=test_data_dir, regen=Fal
         for yfile in files:
             if yfile.endswith('.yml'):
                 test_file = os.path.abspath(os.path.join(top, yfile))
-                expected_load_file = test_file + '.expected.load.json'
-                expected_dump_file = test_file + '.expected.yaml.dump'
+                expected_load_file = f'{test_file}.expected.load.json'
+                expected_dump_file = f'{test_file}.expected.yaml.dump'
                 method, name = get_yaml_test_method(
                     test_file, expected_load_file, expected_dump_file, regen)
                 # attach that method to our test class

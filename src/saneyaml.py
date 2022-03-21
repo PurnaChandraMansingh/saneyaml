@@ -55,10 +55,7 @@ def load(s, allow_duplicate_keys=True):
     If `allow_duplicate_keys` is False, a DuplicateYamlMappingKeyError Exception
     is raised if a mapping contains duplicated keys.
     """
-    if allow_duplicate_keys:
-        loader = SaneLoader
-    else:
-        loader = DupeKeySaneLoader
+    loader = SaneLoader if allow_duplicate_keys else DupeKeySaneLoader
     return yaml.load(s, Loader=loader)
 
 
@@ -83,13 +80,13 @@ class BaseSaneLoader(SafeLoader):
         Legacy from the pre Python 3.6 times when dicts where not ordered.
         """
         assert isinstance(node, yaml.MappingNode)
-        omap = dict()
+        omap = {}
         yield omap
         for key, value in node.value:
             key = self.construct_object(key)
             value = self.construct_object(value)
             if check_dupe and key in omap:
-                raise UnsupportedYamlFeatureError('Duplicate key in YAML source: {}'.format(key))
+                raise UnsupportedYamlFeatureError(f'Duplicate key in YAML source: {key}')
             omap[key] = value
 
 
@@ -281,12 +278,7 @@ class SaneDumper(IndentingEmitter, Serializer, SafeRepresenter, Resolver):
 
         # do not quote integer strings
         if value.isdigit():
-            if value.lstrip('0') == value:
-                style = ''
-            else:
-                # things such as 012 needs to be quoted
-                style = "'"
-
+            style = '' if value.lstrip('0') == value else "'"
         # quote things that could be mistakenly loaded as date
         if is_iso_date(value):
             style = "'"
